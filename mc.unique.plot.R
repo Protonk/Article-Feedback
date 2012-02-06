@@ -22,8 +22,6 @@ feed.sim.mapply <- function(max.count = 400, reps = 100) {
 	return(sim.uniq.out)
 	}
 
-
-
 #loop is just as fast as mapply, of course. 
 
 feed.sim.loop <- function() {

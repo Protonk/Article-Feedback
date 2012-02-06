@@ -13,7 +13,8 @@ sw.ratings <- by(feed.red.5[feed.red.5$Rating != "Unrated",], feed.red.5[feed.re
 # Basic linear (non-robust) regression for explanatory variables of interest
 simple.lm <- lm(I(sum_ratings/sum_count) ~ log(length) + log(sum_count) + Rating, data = feed.red.5)
 
-# Correlation matrix for the specific categories. 
+# Correlation matrix for the specific categories. Note that complete.cases() is used to drop 
+# any row w/ NA values which we will have due to div by zero. 
 
 avgMatrix <- function() {
   avgmat <- matrix(0, nrow(feed.df), 7)
@@ -26,6 +27,7 @@ avgMatrix <- function() {
   return(avgmat[complete.cases(avgmat),])
 }
 
+# Mostly set up for printing 
 full.cor <- cor(avgMatrix())
 ratings.only.cor <- cor(avgMatrix()[, c(1:5)])
 
