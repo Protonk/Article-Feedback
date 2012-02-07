@@ -9,9 +9,8 @@
 # Density estimate of various project ratings. Not dispositive but a nice low clutter view
 
 density.ql.plot <- function() {
-  den.ggplot <- ggplot(data = feed.red.5, aes(sum_ratings/sum_count)) + geom_density(aes(colour = Rating)) + scale_y_continuous(name = "Estimated Density") +
-    opts(axis.title.x = theme_blank(), title = expression("Distribution of Rating Averages by Project Quality Measure"))
-  den.ggplot
+  ggplot(data = feed.red.5, aes(sum_ratings/sum_count)) + geom_density(aes(colour = Rating)) + scale_y_continuous(name = "Estimated Density") +
+  opts(axis.title.x = theme_blank(), title = expression("Distribution of Rating Averages by Project Quality Measure"))
 }
 
 # Number of ratings by project quality, as a density estimate.
@@ -19,19 +18,17 @@ density.ql.plot <- function() {
 # Very similar to density.ql.plot()
 
 density.count.plot <- function() {
-  count.ggplot <- ggplot(data = feed.rated, aes(log(sum_count))) + geom_density(aes(colour = Rating)) + 
+  ggplot(data = feed.rated, aes(log(sum_count))) + geom_density(aes(colour = Rating)) + 
   scale_y_continuous(name = "Estimated Density") + scale_x_continuous(name = "log Rating Counts") +
   opts(title = expression("Distribution of log Rating Counts for Project Quality Rated Articles"))
-  count.ggplot
 }
 
 # Boxplot for different project quality assessments. Using a trimmed sample
 # in order to make the "Unrated" IQR reasonable
 
 rate.box.plot <- function() {
-  box.ggplot <- ggplot(data = feed.red.5, aes(Rating, sum_ratings/sum_count)) + geom_boxplot(aes(fill = Rating)) + scale_y_continuous(name = "Average of Feedback Categories") +
+  ggplot(data = feed.red.5, aes(Rating, sum_ratings/sum_count)) + geom_boxplot(aes(fill = Rating)) + scale_y_continuous(name = "Average of Feedback Categories") +
   opts(axis.title.x = theme_blank(), axis.text.x = theme_blank(), title = expression("Box and Whiskers Plot Feedback Rating by Project Quality Measure"))
-  box.ggplot
 }
 
 # Takes a while to plot.
@@ -41,11 +38,9 @@ length.scatter <- function() {
   # Dumb hack for fixed legend size and alpha, see http://stackoverflow.com/questions/5290003/how-to-set-legend-alpha-with-ggplot2
   dummy.df <- feed.red.5[1,]
   dummy.df[, "length"] <- NaN
-  length.ggplot <- ggplot() + 
-    geom_point(data = feed.red.5, aes(log(length), sum_ratings/sum_count, colour = Rating), alpha = I(0.9), size = I(1), position= position_jitter(h = 1), legend = FALSE) +
-    geom_point(data = dummy.df, aes(log(length), sum_ratings/sum_count, colour = Rating), alpha = 1.0, size = I(3), position= position_jitter(h = 1), na.rm=TRUE) +
-    scale_y_continuous(name = "Approximate Feedback Average") + scale_x_continuous(name = "log Article Length") + opts(title = expression("Article Ratings by Length and Project Quality Measure"), axis.text.y = theme_blank()) 
-  length.ggplot
+  ggplot() + geom_point(data = feed.red.5, aes(log(length), sum_ratings/sum_count, colour = Rating), alpha = I(0.9), size = I(1), position= position_jitter(h = 1), legend = FALSE) +
+  geom_point(data = dummy.df, aes(log(length), sum_ratings/sum_count, colour = Rating), alpha = 1.0, size = I(3), position= position_jitter(h = 1), na.rm=TRUE) +
+  scale_y_continuous(name = "Approximate Feedback Average") + scale_x_continuous(name = "log Article Length") + opts(title = expression("Article Ratings by Length and Project Quality Measure"), axis.text.y = theme_blank()) 
 }
 
 # Uncolored scatterplot w/ a (robust) linear regression line drawn through

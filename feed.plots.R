@@ -14,9 +14,9 @@ count.low.plot <- function(max.sum=60) {
 	plot(count.rows[,1], log(count.rows[,2]), type= "l", frame.plot = FALSE, xlab= "Number of Ratings", ylab= "log Articles Rated", main= "Most articles have few ratings with\njumps at multiples of four")
 	segments(y0=c(log(count.rows[period,2])), x0=period, y1=0, lty=2, col="green")
 	# Spline meant only to illustrate the deviation
-  count.spline <- smooth.spline(count.rows[,1], log(count.rows[,2]), nknots=5)
+    count.spline <- smooth.spline(count.rows[,1], log(count.rows[,2]), nknots=5)
 	lines(x = count.spline$x, y = count.spline$y, col = "blue", lty = 3)
-	}
+}
 
 # The upper half of the long tail, dominated by Justin Bieber
 
@@ -28,7 +28,7 @@ count.high.plot <- function(min.rank=60) {
 	# Custom axis because we are looking at log rank, not actual rank
   axis(1, at = c(4,0.2), labels = c("Lower Rank (60th)", "Higher Rank"))
 	axis(4)
-	}
+}
 
 # Area under the distribution
 # Gets noisy near the end because of many ratings per article and many zeros
@@ -49,7 +49,7 @@ pareto.plot <- function(max.plot = 1200) {
 	points(count.8020, 7, col = "grey", pch = 20)
 	text((count.8020 + 10), 7, labels = paste("80% of all article ratings\naccounted for by articles rated\n", count.8020, " times or fewer.", sep = ""), pos = 4, adj = 0, cex = 0.8)
 	text(0.8*max.plot, 4, labels = paste("Remaining ", (length(tabcount) - max.plot), " rows\nommitted for clarity", sep = ""), adj = 0, cex = 0.6)
-	}
+}
 
 ### Not quite ready for prime-time
 
@@ -71,4 +71,44 @@ var.plot <- function(max.count = 400, reps = 100) {
   plot(1:length(dist.un), dist.un , type = "l", ylim = c(0, 400))
   lines(1:max.count, tabcount[1:max.count], col = "blue")
   abline(a = 0, b =5, col = "green", lty = 2)
+}
+
+# Not fully there yet, but a good show of how measures of key variables become unstable 
+# as ratings/article rise and # articles fall (faster)
+
+instabilityPlot <- function(max.count = 400) {
+	computePerRating <- function(max.count) {
+	  tabcount <- tabulate(feed.df[feed.df[,"sum_count"] <= max.count, "sum_count"])
+	  spread.df <- feed.df[, c("sum_ratings", "sum_count", "length", "Rating")]
+	  spread.df$Average <- spread.df[, "sum_ratings"] / spread.df[, "sum_count"]
+	  spread.df <- spread.df[spread.df[, "sum_count"] <= max.count, ]
+	  summary.mat <- matrix(0, max.count, 5)
+	  summary.mat[, 3] <- tabcount
+	  for (i in 1:max.count) {
+		summary.mat[i,1] <- mean(spread.df[spread.df[, "sum_count"] == i, "Average"], na.rm = TRUE)
+		summary.mat[i, 2] <- mean(log(spread.df[spread.df[, "sum_count"] == i, "length"]))
+		summary.mat[i,4] <- nrow(spread.df[spread.df[, "sum_count"] == i & spread.df[, "Rating"] != "Unrated",])
+	  }
+	  summary.mat[,5] <- summary.mat[,4] / summary.mat[,3]
+	  summary.df <- data.frame(summary.mat)
+	  names(summary.df) <- c("rating_avg", "avg_log_length", "number_art", "number_rated_art", "prop_rated")
+	  return(summary.df)
+	}
+	unstable.df <- computePerRating(max.count)
+	x.count.lab <- "Ratings per Article"
+	log.lab <- "Average log Article Length"
+	prop.lab <- "Project Quality Assessed Articles\nas a Fraction of all Articles"
+	avg.lab <- "Rating Average"
+	plot.title <- "Variables of Interest Become Unstable as Fewer Articles are Rated"
+	par(mfrow = c(3,1))
+	plot(1:max.count, unstable.df[, "rating_avg"], type = "l", ylab = '', xlab = '', main = plot.title, frame.plot = FALSE)
+	points(25, 2.8, pch = 15, cex = 2)
+	text(30, 2.8, labels = avg.lab, pos = 4, cex = 2)
+	plot(1:max.count, unstable.df[, "avg_log_length"], type = "l", col = "blue", frame.plot = FALSE, ylab = '', xlab = '')
+	points(25, 10.5, pch = 15, cex = 2, col = "blue")
+	text(30, 10.5, labels = log.lab, pos = 4, cex = 2)
+	plot(1:max.count, unstable.df[, "prop_rated"], type = "l", col = "green", frame.plot = FALSE, xlab = x.count.lab, ylab = '')
+	points(25, 0.45, pch = 15, cex = 2, col = "green")
+	text(30, 0.45, labels = prop.lab, pos = 4, cex = 2)
+	par(mfrow = c(1,1))
 }
