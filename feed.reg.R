@@ -18,7 +18,7 @@ simple.lm <- lm(I(sum_ratings/sum_count) ~ log(length) + log(sum_count) + Rating
 
 avgMatrix <- function() {
   avgmat <- matrix(0, nrow(feed.df), 7)
-  colnames(avgmat) <- c("wellsourced", "neutral", "complete", "readable", "overall", "log_length", "log_total_ratings")
+  colnames(avgmat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall", "log_length", "log_total_ratings")
   for (i in c(3,5,7,9,11)) {
     avgmat[,(i - 1)/2] <- (feed.df[, i] / feed.df[, i + 1])
   }
@@ -30,6 +30,11 @@ avgMatrix <- function() {
 # Mostly set up for printing 
 full.cor <- cor(avgMatrix())
 ratings.only.cor <- cor(avgMatrix()[, c(1:5)])
+
+ratingMap <- function () {
+  try(require(RColorBrewer))
+  heatmap(ratings.only.cor, symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
+}
 
 
 
