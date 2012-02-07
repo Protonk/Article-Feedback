@@ -44,11 +44,11 @@ applyFactors <- function(remote = FALSE) {
   for (x in seq_along(charvec.names)) {
     assign(charvec.names[x], as.character(read.delim(file(input[x]), sep = "\n", header = FALSE, as.is= TRUE)[,1]))
   }
-  feed.df[feed.df[,"title"] %in% formerGA.list, "Rating"] <<- "Former Good Article"
-  feed.df[feed.df[,"title"] %in% formerFA.list, "Rating"] <<- "Former Featured Article"
-  feed.df[feed.df[,"title"] %in% nomGA.list, "Rating"] <<- "Good Article Nominee"
-  feed.df[feed.df[,"title"] %in% GA.list, "Rating"] <<- "Good Article"
-  feed.df[feed.df[,"title"] %in% FA.list, "Rating"] <<- "Featured Article"
+  feed.df[feed.df[,"title"] %in% formerGA.list, "Assessment"] <<- "Former Good Article"
+  feed.df[feed.df[,"title"] %in% formerFA.list, "Assessment"] <<- "Former Featured Article"
+  feed.df[feed.df[,"title"] %in% nomGA.list, "Assessment"] <<- "Good Article Nominee"
+  feed.df[feed.df[,"title"] %in% GA.list, "Assessment"] <<- "Good Article"
+  feed.df[feed.df[,"title"] %in% FA.list, "Assessment"] <<- "Featured Article"
   closeAllConnections()
 }
 
@@ -59,12 +59,13 @@ names(feed.df) <- c("title", "length", "total_wellsourced", "count_wellsourced",
 
 # Compute rating/count sums
 
-feed.df$sum_ratings <- feed.df[,3] + feed.df[,5] + feed.df[,7] + feed.df[,9]
-feed.df$sum_count <- feed.df[,4] + feed.df[,6] + feed.df[,8] + feed.df[,10]
+feed.df$sum_ratings <- feed.df[, "total_wellsourced"] + feed.df[, "total_neutral"] + feed.df[, "total_complete"] + feed.df[, "total_readable"]
+feed.df$sum_count <- feed.df[, "count_wellsourced"] + feed.df[, "count_neutral"] + feed.df[, "count_complete"] + feed.df[, "count_readable"]
+feed.df$rating_avg <- feed.df[, "sum_ratings"] / feed.df[, "sum_count"]
 
 # Create factor variable for Project Assessment and assign it with applyFactors()
 
-feed.df$Rating<- factor(x = c("Unrated"), levels=c("Unrated", "Former Good Article", "Former Featured Article", "Good Article Nominee",  "Good Article", "Featured Article"))
+feed.df$Assessment<- factor(x = c("Unassessed"), levels=c("Unassessed", "Former Good Article", "Former Featured Article", "Good Article Nominee",  "Good Article", "Featured Article"))
 applyFactors()
 
 
@@ -90,8 +91,8 @@ feed.red.5 <- feed.df[feed.df[,"sum_count"] >= 5, ]
 
 # Just GA/FA/former GA/Former FA/Failed GA noms
 # Be mindful, this is a miniscule fraction of overall sample
-feed.rated <- feed.df[feed.df[, "Rating"] != "Unrated", ]
-feed.rated[,"Rating"] <- factor(feed.rated[,"Rating"])
+feed.rated <- feed.df[feed.df[, "Assessment"] != "Unassessed", ]
+feed.rated[, "Assessment"] <- factor(feed.rated[, "Assessment"])
 
 # Cleans up objects used for importing 
 # Purely cosmetic, none of them are particularly large

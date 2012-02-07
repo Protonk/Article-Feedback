@@ -3,15 +3,15 @@
 ## Build an aux. regression for length (4th order polynomial) and fit categorical ratings to those residuals
 ## 
 
-length.lm.4 <- lm(I(sum_ratings/sum_count) ~ log(length) + I(log(length)^2) + I(log(length)^3) + I(log(length)^4) , data = feed.red.5)
+length.lm.4 <- lm(rating_avg ~ log(length) + I(log(length)^2) + I(log(length)^3) + I(log(length)^4) , data = feed.red.5)
 simple.aux.lm <- lm(resid(length.lm.4) ~ Rating, data = feed.red.5)
 
 # Shapiro-Wilk test for rated and unrated articles. Unsurprisingly, average ratings for both are not 
 # normally distributed. 
-sw.ratings <- by(feed.red.5[feed.red.5$Rating != "Unrated",], feed.red.5[feed.red.5$Rating != "Unrated", "Rating"] , function(x) shapiro.test(x[,"sum_ratings"] / x[,"sum_count"]))
+sw.ratings <- by(feed.red.5[feed.red.5$Rating != "Unassessed",], feed.red.5[feed.red.5$Rating != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"sum_ratings"] / x[,"sum_count"]))
 
 # Basic linear (non-robust) regression for explanatory variables of interest
-simple.lm <- lm(I(sum_ratings/sum_count) ~ log(length) + log(sum_count) + Rating, data = feed.red.5)
+simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Rating, data = feed.red.5)
 
 # Correlation matrix for the specific categories. Note that complete.cases() is used to drop 
 # any row w/ NA values which we will have due to div by zero. 
@@ -35,6 +35,9 @@ ratingMap <- function () {
   try(require(RColorBrewer))
   heatmap(ratings.only.cor, symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
 }
+
+##
+
 
 
 

@@ -63,8 +63,7 @@ pareto.plot <- function(max.plot = 1200) {
 
 var.plot <- function(max.count = 400, reps = 100) {
   tabcount <- tabulate(feed.df[,"sum_count"])
-  spread.df <- feed.df[, c("sum_ratings", "sum_count")]
-  spread.df$Average <- spread.df[, "sum_ratings"] / spread.df[, "sum_count"]
+  spread.df <- feed.df[, c("sum_ratings", "sum_count", "rating_avg")]
   spread.df <- spread.df[spread.df[,"sum_count"] <= max.count, -1]
   spread.df[, "sum_count"] <- factor(spread.df[, "sum_count"])
   dist.un <- by(spread.df, spread.df[, "sum_count"], function(x) length(unique(x[,2])))
@@ -79,15 +78,14 @@ var.plot <- function(max.count = 400, reps = 100) {
 instabilityPlot <- function(max.count = 400) {
 	computePerRating <- function(max.count) {
 	  tabcount <- tabulate(feed.df[feed.df[,"sum_count"] <= max.count, "sum_count"])
-	  spread.df <- feed.df[, c("sum_ratings", "sum_count", "length", "Rating")]
-	  spread.df$Average <- spread.df[, "sum_ratings"] / spread.df[, "sum_count"]
+	  spread.df <- feed.df[, c("sum_ratings", "sum_count", "rating_avg", "length", "Assessment")]
 	  spread.df <- spread.df[spread.df[, "sum_count"] <= max.count, ]
 	  summary.mat <- matrix(0, max.count, 5)
 	  summary.mat[, 3] <- tabcount
 	  for (i in 1:max.count) {
-		summary.mat[i,1] <- mean(spread.df[spread.df[, "sum_count"] == i, "Average"], na.rm = TRUE)
+		summary.mat[i,1] <- mean(spread.df[spread.df[, "sum_count"] == i, "rating_avg"], na.rm = TRUE)
 		summary.mat[i, 2] <- mean(log(spread.df[spread.df[, "sum_count"] == i, "length"]))
-		summary.mat[i,4] <- nrow(spread.df[spread.df[, "sum_count"] == i & spread.df[, "Rating"] != "Unrated",])
+		summary.mat[i,4] <- nrow(spread.df[spread.df[, "sum_count"] == i & spread.df[, "Assessment"] != "Unassessed",])
 	  }
 	  summary.mat[,5] <- summary.mat[,4] / summary.mat[,3]
 	  summary.df <- data.frame(summary.mat)
