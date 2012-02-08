@@ -5,6 +5,9 @@
 
 ## All of these plots require "ggplot2" to be installed and loaded
 
+#
+# Eventually the three below will be combined into one function for ease of presentation
+#
 
 # Density estimate of various project ratings. Not dispositive but a nice low clutter view
 
@@ -22,6 +25,16 @@ density.count.plot <- function() {
   scale_y_continuous(name = "Estimated Density") + scale_x_continuous(name = "log Rating Counts") +
   opts(title = expression("Distribution of log Rating Counts for Project Quality Assessed Articles"))
 }
+
+# Article length by project quality, as a density estimate.
+# Very similar to density.ql.plot()
+
+density.length.plot <- function() {
+  ggplot(data = feed.df, aes(log(length))) + geom_density(aes(colour = Assessment)) + 
+    scale_y_continuous(name = "Estimated Density") + scale_x_continuous(name = "log Article Length") +
+    opts(title = expression("Distribution of log Article Length for Project Quality Assessed Articles"))
+}
+
 
 # Boxplot for different project quality assessments. Using a trimmed sample
 # in order to make the "Unassessed" IQR reasonable
