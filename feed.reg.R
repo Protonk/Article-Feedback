@@ -3,15 +3,22 @@
 ## Build an aux. regression for length (4th order polynomial) and fit categorical ratings to those residuals
 ## 
 
-length.lm.4 <- lm(rating_avg ~ log(length) + I(log(length)^2) + I(log(length)^3) + I(log(length)^4) , data = feed.red.5)
-simple.aux.lm <- lm(resid(length.lm.4) ~ Assessment, data = feed.red.5)
+length.lm.4 <- lm(rating_avg ~ log(length) + I(log(length)^2) + I(log(length)^3) + I(log(length)^4) , data = feed.df)
+simple.aux.lm <- lm(resid(length.lm.4) ~ log(sum_count) + Assessment, data = feed.df)
 
 # Shapiro-Wilk test for rated and unrated articles. Unsurprisingly, average ratings for both are not 
 # normally distributed. 
-sw.ratings <- by(feed.red.5[feed.red.5$Assessment != "Unassessed",], feed.red.5[feed.red.5$Assessment != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"sum_ratings"] / x[,"sum_count"]))
+
+# Commented out for now. 
+
+# sw.ratings <- by(feed.df[feed.df$Assessment != "Unassessed",], feed.df[feed.df$Assessment != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"rating_avg"]))
 
 # Basic linear (non-robust) regression for explanatory variables of interest
-simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.red.5)
+simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.df)
+
+# Tukey HSD for comparison of Assessment group means. 
+
+tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= TRUE)
 
 # Correlation matrix for the specific categories. Note that complete.cases() is used to drop 
 # any row w/ NA values which we will have due to div by zero. 
@@ -27,18 +34,15 @@ avgMatrix <- function() {
   return(avgmat[complete.cases(avgmat),])
 }
 
-# Mostly set up for printing 
-full.cor <- cor(avgMatrix())
-ratings.only.cor <- cor(avgMatrix()[, c(1:5)])
+# Mostly set up for printing. Will print later when I can tame xtable
+
+# full.cor <- cor(avgMatrix())
 
 ratingMap <- function () {
   try(require(RColorBrewer))
-  heatmap(ratings.only.cor, symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
+  heatmap(cor(avgMatrix()[, c(1:5)]), symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
 }
 
 ##
-
-
-
 
 
