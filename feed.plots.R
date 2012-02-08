@@ -9,10 +9,10 @@
 
 count.low.plot <- function(max.sum=60) {
   # tabulate() is awesome
-	count.rows <- cbind(1:max.sum,tabulate(feed.df[feed.df[,"sum_count"] <= max.sum,"sum_count"]))
+	count.rows <- cbind(1:max.sum, tabulate(feed.df[feed.df[, "sum_count"] <= max.sum, "sum_count"]))
 	period <- seq(from = 4,to = max.sum, by = 4)
 	plot(count.rows[,1], log(count.rows[,2]), type= "l", frame.plot = FALSE, xlab= "Number of Ratings", ylab= "log Articles Rated", main= "Most articles have few ratings with\njumps at multiples of four")
-	segments(y0=c(log(count.rows[period,2])), x0=period, y1=0, lty=2, col="green")
+	segments(y0 = c(log(count.rows[period,2])), x0 = period, y1 = 0, lty = 2, col = "green")
 	# Spline meant only to illustrate the deviation
     count.spline <- smooth.spline(count.rows[,1], log(count.rows[,2]), nknots=5)
 	lines(x = count.spline$x, y = count.spline$y, col = "blue", lty = 3)
@@ -22,7 +22,7 @@ count.low.plot <- function(max.sum=60) {
 
 count.high.plot <- function(min.rank=60) {
 	# Sorted so I can keep the same rtl orientation for both high and low plots
-	count.sum <- cbind(min.rank:1,sort(feed.df[order(feed.df[,"sum_count"], decreasing = TRUE)[1:min.rank],"sum_count"]))
+	count.sum <- cbind(min.rank:1,sort(feed.df[order(feed.df[, "sum_count"], decreasing = TRUE)[1:min.rank], "sum_count"]))
 	plot(log(count.sum[,1]), log(count.sum[,2]), type = "l", xlim = rev(range(log(count.sum[,1]))) , axes = FALSE, ylim = c(7.5, 10.5), xlab = '', ylab = '')
 	title(ylab = "log Article ratings received", main = "Log/Log plot of Rank and Number of Ratings Received")
 	# Custom axis because we are looking at log rank, not actual rank
@@ -34,7 +34,7 @@ count.high.plot <- function(min.rank=60) {
 # Gets noisy near the end because of many ratings per article and many zeros
 
 pareto.plot <- function(max.plot = 1200) {
-	tabcount <- tabulate(feed.df[,"sum_count"])
+	tabcount <- tabulate(feed.df[, "sum_count"])
 	tabsum <- cumsum(1:length(tabcount)*tabcount)
   # There is probably a better way to do this than tail()
 	count.8020 <- tail(which(tabsum <= 0.8*max(tabsum)), 1)
@@ -50,6 +50,14 @@ pareto.plot <- function(max.plot = 1200) {
 	text((count.8020 + 10), 7, labels = paste("80% of all article ratings\naccounted for by articles rated\n", count.8020, " times or fewer.", sep = ""), pos = 4, adj = 0, cex = 0.8)
 	text(0.8*max.plot, 4, labels = paste("Remaining ", (length(tabcount) - max.plot), " rows\nommitted for clarity", sep = ""), adj = 0, cex = 0.6)
 }
+
+# Visual map of correlation between rating categories and overall ratings. 
+
+ratingMap <- function () {
+  try(require(RColorBrewer))
+  heatmap(cor(full.pre.cor[, c(1:5)]), symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
+}
+
 
 ### Not quite ready for prime-time
 

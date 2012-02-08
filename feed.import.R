@@ -77,7 +77,8 @@ applyFactors()
 
 unclean.rows <- function() {
 	extreme.out<- numeric()
-	for (i in 3:10) {
+  # Append is used here because the for loop is walking columns (which may have variable #'s of extreme values)
+	for (i in 3:11) {
 		extreme.out <- append(extreme.out, which(feed.df[,i] == 4294967295), after = length(extreme.out))
 		}
 	feed.oor <- c(which(feed.df[,"length"] <= 50), which(feed.df[,"sum_count"] == 0), which(feed.df[,"sum_ratings"]/feed.df[,"sum_count"] > 5))
@@ -86,8 +87,31 @@ unclean.rows <- function() {
 	}
 feed.df <- feed.df[-unclean.rows(), ]
 
-# Drop very low counts for ratings. 
-feed.red.5 <- feed.df[feed.df[,"sum_count"] >= 5, ]
+# Correlation matrix for the specific categories. Note that complete.cases() is used to drop 
+# any row w/ NA values which we will have due to div by zero. 
+
+precorMatrix <- function() {
+  pre.cor.mat <- matrix(0, nrow(feed.df), 7)
+  colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall", "log_length", "log_total_ratings")
+  for (i in c(3,5,7,9,11)) {
+    pre.cor.mat[,(i - 1)/2] <- (feed.df[, i] / feed.df[, i + 1])
+  }
+  pre.cor.mat[, 6] <- log(feed.df[, "length"])
+  pre.cor.mat[, 7] <- log(feed.df[, "sum_count"])
+  return(pre.cor.mat[complete.cases(pre.cor.mat),])
+}
+
+# Load Individual rating categories into a numerical matrix (along w/ col's 6 & 7 for length/sum_count
+# Done in the import script so I can drop the individual categories from the dataframe
+
+full.pre.cor <- precorMatrix()
+
+# Removes individual ratings from the dataframe. Cleans up calls to summary() and doesn't remove 
+# any information I really need for plotting or analysis. 
+# individual ratings (not the counts) are available from full.pre.cor
+
+feed.df <- feed.df[, c("title", "length", "sum_ratings", "sum_count", "rating_avg", "Assessment")]
+
 
 # Just GA/FA/former GA/Former FA/Failed GA noms
 # Be mindful, this is a miniscule fraction of overall sample
@@ -97,5 +121,8 @@ feed.rated[, "Assessment"] <- factor(feed.rated[, "Assessment"])
 # Cleans up objects used for importing 
 # Purely cosmetic, none of them are particularly large
 # Close remote connections, if we opened any
-remove(unclean.rows, buildFeedDf, applyFactors)
+
+# precorMatrix is removed because the rows it depends upon are removed
+
+remove(unclean.rows, buildFeedDf, applyFactors, precorMatrix)
 closeAllConnections()
