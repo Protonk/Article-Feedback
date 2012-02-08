@@ -4,14 +4,14 @@
 ## 
 
 length.lm.4 <- lm(rating_avg ~ log(length) + I(log(length)^2) + I(log(length)^3) + I(log(length)^4) , data = feed.red.5)
-simple.aux.lm <- lm(resid(length.lm.4) ~ Rating, data = feed.red.5)
+simple.aux.lm <- lm(resid(length.lm.4) ~ Assessment, data = feed.red.5)
 
 # Shapiro-Wilk test for rated and unrated articles. Unsurprisingly, average ratings for both are not 
 # normally distributed. 
-sw.ratings <- by(feed.red.5[feed.red.5$Rating != "Unassessed",], feed.red.5[feed.red.5$Rating != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"sum_ratings"] / x[,"sum_count"]))
+sw.ratings <- by(feed.red.5[feed.red.5$Assessment != "Unassessed",], feed.red.5[feed.red.5$Assessment != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"sum_ratings"] / x[,"sum_count"]))
 
 # Basic linear (non-robust) regression for explanatory variables of interest
-simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Rating, data = feed.red.5)
+simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.red.5)
 
 # Correlation matrix for the specific categories. Note that complete.cases() is used to drop 
 # any row w/ NA values which we will have due to div by zero. 
