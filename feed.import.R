@@ -92,7 +92,7 @@ feed.df <- feed.df[-unclean.rows(), ]
 
 precorMatrix <- function() {
   pre.cor.mat <- matrix(0, nrow(feed.df), 5)
-  colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall", "log_length", "log_total_ratings")
+  colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")
   for (i in c(3,5,7,9,11)) {
     pre.cor.mat[,(i - 1)/2] <- (feed.df[, i] / feed.df[, i + 1])
   }
