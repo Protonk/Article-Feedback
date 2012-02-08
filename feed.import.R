@@ -16,6 +16,7 @@ buildFeedDf <- function(remote = FALSE) {
     return(aap.file)
   }
   if (remote) grabWikiFeed()
+  closeAllConnections()
   else read.csv("~/R/Dropbox/afdump.csv", as.is= TRUE)
 }
 
@@ -70,7 +71,8 @@ applyFactors()
 
 
 # Drop rows with:
-##  0 length
+##  50 length or less. < 0 length are erroneous values, 0-50 tend to be redirects
+###  In the future I may match these to their redirect targets, but it isn't worth the effort now
 ##  Extreme erroneous values
 ##  Nonsensical averages (> 5)
 ##  0 ratings
@@ -80,7 +82,7 @@ unclean.rows <- function() {
 	for (i in 3:10) {
 		extreme.out <- append(extreme.out, which(feed.df[,i] == 4294967295), after = length(extreme.out))
 		}
-	feed.oor <- c(which(feed.df[,"length"] <= 0), which(feed.df[,"sum_count"] == 0), which(feed.df[,"sum_ratings"]/feed.df[,"sum_count"] > 5))
+	feed.oor <- c(which(feed.df[,"length"] <= 50), which(feed.df[,"sum_count"] == 0), which(feed.df[,"sum_ratings"]/feed.df[,"sum_count"] > 5))
 	extreme.out <- c(extreme.out, feed.oor)
 	return(unique(extreme.out))
 	}
