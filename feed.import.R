@@ -16,7 +16,6 @@ buildFeedDf <- function(remote = FALSE) {
     return(aap.file)
   }
   if (remote) grabWikiFeed()
-  closeAllConnections()
   else read.csv("~/R/Dropbox/afdump.csv", as.is= TRUE)
 }
 
@@ -50,7 +49,6 @@ applyFactors <- function(remote = FALSE) {
   feed.df[feed.df[,"title"] %in% nomGA.list, "Assessment"] <<- "Good Article Nominee"
   feed.df[feed.df[,"title"] %in% GA.list, "Assessment"] <<- "Good Article"
   feed.df[feed.df[,"title"] %in% FA.list, "Assessment"] <<- "Featured Article"
-  closeAllConnections()
 }
 
 # Drops namespace and page id
@@ -98,4 +96,6 @@ feed.rated[, "Assessment"] <- factor(feed.rated[, "Assessment"])
 
 # Cleans up objects used for importing 
 # Purely cosmetic, none of them are particularly large
+# Close remote connections, if we opened any
 remove(unclean.rows, buildFeedDf, applyFactors)
+closeAllConnections()
