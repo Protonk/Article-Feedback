@@ -55,7 +55,7 @@ pareto.plot <- function(max.plot = 1200) {
 
 ratingMap <- function () {
   try(require(RColorBrewer))
-  heatmap(cor(full.pre.cor[, c(1:5)]), symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
+  heatmap(cor(ratings.corr), symm = TRUE, Rowv = NA, col = brewer.pal(9, "Blues"), keep.dendro = FALSE, labCol = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), labRow = c("Well\nSourced", "Neutral", "Complete", "Readable", "Overall"), margins = c(8.2, 4))
 }
 
 

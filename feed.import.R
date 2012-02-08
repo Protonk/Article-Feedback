@@ -91,24 +91,21 @@ feed.df <- feed.df[-unclean.rows(), ]
 # any row w/ NA values which we will have due to div by zero. 
 
 precorMatrix <- function() {
-  pre.cor.mat <- matrix(0, nrow(feed.df), 7)
+  pre.cor.mat <- matrix(0, nrow(feed.df), 5)
   colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall", "log_length", "log_total_ratings")
   for (i in c(3,5,7,9,11)) {
     pre.cor.mat[,(i - 1)/2] <- (feed.df[, i] / feed.df[, i + 1])
   }
-  pre.cor.mat[, 6] <- log(feed.df[, "length"])
-  pre.cor.mat[, 7] <- log(feed.df[, "sum_count"])
   return(pre.cor.mat[complete.cases(pre.cor.mat),])
 }
 
 # Load Individual rating categories into a numerical matrix (along w/ col's 6 & 7 for length/sum_count
 # Done in the import script so I can drop the individual categories from the dataframe
 
-full.pre.cor <- precorMatrix()
+ratings.corr <- cor(precorMatrix())
 
 # Removes individual ratings from the dataframe. Cleans up calls to summary() and doesn't remove 
 # any information I really need for plotting or analysis. 
-# individual ratings (not the counts) are available from full.pre.cor
 
 feed.df <- feed.df[, c("title", "length", "sum_ratings", "sum_count", "rating_avg", "Assessment")]
 
