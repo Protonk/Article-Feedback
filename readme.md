@@ -32,10 +32,10 @@ It is also not written in the style of an R package. The code expects you to run
 
 Some things of note:
 
-	- Contains variables which are specific to where you download those files. Or you can download them from w/in the program. Each of these is hard coded. This isn't completely optimal but it makes it easy on my end. 
-	- The two functions buildFeedDf() and applyFactors() default to remote = FALSE, meaning that they expect the supplied files to be available in the same file path before running. The import script calls both of them as it loads, so you have to edit the source before running it in order for it to work. 
-	- Setting applyFactors(remote = TRUE) is perfectly reasonable, as the article lists are tiny. But the article feedback dump is large and if you run the import script multiple times it needlessly burdens the wikimedia servers.
+- Contains variables which are specific to where you download those files. Or you can download them from w/in the program. Each of these is hard coded. This isn't completely optimal but it makes it easy on my end. 
+- The two functions buildFeedDf() and applyFactors() default to remote = FALSE, meaning that they expect the supplied files to be available in the same file path before running. The import script calls both of them as it loads, so you have to edit the source before running it in order for it to work. 
+- Setting applyFactors(remote = TRUE) is perfectly reasonable, as the article lists are tiny. But the article feedback dump is large and if you run the import script multiple times it needlessly burdens the wikimedia servers.
 	
 ### feed.ggplot.R
 	
-	- Most of these use the full dataset without decimation so they will take a while to render. 
+- Most of these use the full dataset without decimation so they will take a while to render. 
