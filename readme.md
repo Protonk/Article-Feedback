@@ -24,7 +24,20 @@ All of this stuff is coming from my personal use. I've tried to comment where po
 
 It is also not written in the style of an R package. The code expects you to run each script as needed (after the import script) in order to load the functions and objects into your environment. Then you can plot or model as needed using the supplied functions/objects.
 
+## Packages
 
+This will eventually be automated with a call to sessionInfo()
+
+### Required
+
+- ggplot2 For plotting
+- Animation for saving animations (also requires ImageMagick)
+- MASS for a few regression models and utility functions
+
+### Used for miscellany (or not used inside the script proper)
+
+- xtable for printing tables
+- XML for parsing calls to the mediawiki API 
 
 ## Individual script notes
 
