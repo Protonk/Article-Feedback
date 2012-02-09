@@ -109,11 +109,16 @@ ratings.corr <- cor(precorMatrix())
 
 feed.df <- feed.df[, c("title", "length", "sum_ratings", "sum_count", "rating_avg", "Assessment")]
 
+# Reset row names for the data frames so that regression diagnostics will be informative 
+
+rownames(feed.df) <- 1:nrow(feed.df)
 
 # Just GA/FA/former GA/Former FA/Failed GA noms
 # Be mindful, this is a miniscule fraction of overall sample
+
 feed.rated <- feed.df[feed.df[, "Assessment"] != "Unassessed", ]
 feed.rated[, "Assessment"] <- factor(feed.rated[, "Assessment"])
+rownames(feed.rated) <- 1:nrow(feed.rated)
 
 # Cleans up objects used for importing 
 # Purely cosmetic, none of them are particularly large
