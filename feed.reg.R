@@ -20,7 +20,6 @@ simpleSummary <- function() {
   rbind(Variable, signif(int.mat, 4))
 }
 
-
 ### Some simple regression models 
 
 ## Build an aux. regression for length (4th order polynomial) and fit categorical ratings to those residuals
@@ -32,7 +31,7 @@ simple.aux.lm <- lm(resid(length.lm.4) ~ log(sum_count) + Assessment, data = fee
 # Shapiro-Wilk test for rated and unrated articles. Unsurprisingly, average ratings for both are not 
 # normally distributed. 
 
-# Commented out for now. 
+# Commented out for now, as sw requires < 5000 observations. 
 
 # sw.ratings <- by(feed.df[feed.df$Assessment != "Unassessed",], feed.df[feed.df$Assessment != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"rating_avg"]))
 
@@ -51,14 +50,3 @@ tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= 
 
 giant.lm <- lm(rating_avg ~ log(sum_count) + Assessment + log(length) + log(sum_count):Assessment + log(sum_count):log(length) + Assessment:log(length), data = feed.df)
 
-simpleSummary <- function() {
-  fin.mat <- matrix(0,6,9)
-  rownames(fin.mat) <- levels(feed.df[, "Assessment"])
-  colnames(fin.mat) <- rep(c("mean", "median", "sd"), 3) 
-  for (i in levels(feed.df[, "Assessment"])) {
-    fin.mat[i, seq(1,7,3)] <- unname(apply(feed.df[feed.df[, "Assessment"] == i, c("length",  "sum_count", "rating_avg")], 2, mean))
-    fin.mat[i, seq(2,8,3)] <- unname(apply(feed.df[feed.df[, "Assessment"] == i, c("length",  "sum_count", "rating_avg")], 2, median))
-    fin.mat[i, seq(3,9,3)] <- unname(apply(feed.df[feed.df[, "Assessment"] == i, c("length",  "sum_count", "rating_avg")], 2, sd))
-  }
-  fin.mat
-}
