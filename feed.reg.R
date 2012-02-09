@@ -42,11 +42,11 @@ simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = f
 
 tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= TRUE)
 
-
-# Kitchen Sink Linear Model.
+## Kitchen Sink Linear Model.
 
 # Created for two purposes. First, to step down to automatically selected explanatory variables.
 # Second, to explore for interactions (which is kinda a subset of thing one)
 
 giant.lm <- lm(rating_avg ~ log(sum_count) + Assessment + log(length) + log(sum_count):Assessment + log(sum_count):log(length) + Assessment:log(length), data = feed.df)
-
+# Even w/ assignment, prints some stuff to the console w/o setting trace to FALSE
+stepped.AIC <- stepAIC(giant.lm, trace = FALSE)
