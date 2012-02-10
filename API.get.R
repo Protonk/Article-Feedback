@@ -1,8 +1,8 @@
-options(HTTPUserAgent="R (2.14.1 Category Info Script Contact-User:Protonk)")
 
 library(RJSONIO)
+library(RCurl)
 
-short.art <- as.character(read.delim("/Users/protonk/r/shortarticles.txt", header = FALSE, sep = "\n", quote = "")[,1])
+options(RCurlOptions = list(verbose = FALSE, useragent = "Category Enumeration by User:Protonk on en.wp, R 2.14.1 using RCurl"))
 
 fetchCategoryURL <- function(category, continue = NULL, namespace = 0) {
   url.start <-paste(
@@ -25,7 +25,4 @@ fetchCategoryURL <- function(category, continue = NULL, namespace = 0) {
 }
 
 
-  
-
-readLines(con = url(cat.url), warn = FALSE)
     
