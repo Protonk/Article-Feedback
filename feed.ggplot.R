@@ -11,8 +11,8 @@
 
 # Density estimate of various project ratings. Not dispositive but a nice low clutter view
 
-density.ql.plot <- function() {
-  ggplot(data = feed.df, aes(rating_avg)) + geom_density(aes(colour = Assessment)) + scale_y_continuous(name = "Estimated Density") +
+density.rating.plot <- function() {
+  ggplot(data = feed.df[feed.df[,"sum_count"] > 5, ], aes(rating_avg)) + geom_density(aes(colour = Assessment)) + scale_y_continuous(name = "Estimated Density") +
   opts(axis.title.x = theme_blank(), title = expression("Distribution of Rating Averages by Project Quality Assessment"))
 }
 
@@ -40,8 +40,8 @@ density.length.plot <- function() {
 # in order to make the "Unassessed" IQR reasonable
 
 rate.box.plot <- function() {
-  ggplot(data = feed.df, aes(Rating, rating_avg)) + geom_boxplot(aes(fill = Rating)) + scale_y_continuous(name = "Average of Feedback Categories") +
-  opts(axis.title.x = theme_blank(), axis.text.x = theme_blank(), title = expression("Box and Whiskers Plot Feedback Rating by Project Quality Assessment"))
+  ggplot(data = feed.df, aes(Assessment, rating_avg)) + geom_boxplot(aes(fill = Assessment)) + scale_y_continuous(name = "Average of Feedback Categories") +
+  opts(axis.title.x = theme_blank(), axis.text.x = theme_blank(), title = expression("Box Plot Comparing Feedback Rating by Project Quality Assessment"))
 }
 
 # Takes a while to plot.

@@ -199,5 +199,5 @@ rownames(feed.rated) <- 1:nrow(feed.rated)
 
 # precorMatrix is removed because the rows it depends upon are removed
 
-remove(unclean.rows, buildFeedDf, applyFactors, precorMatrix)
+remove(unclean.rows, buildFeedDf, applyFactors, precorMatrix, fetchCompleteCat)
 closeAllConnections()
