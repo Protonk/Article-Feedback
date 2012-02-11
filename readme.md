@@ -10,7 +10,8 @@ Currently:
 
  - feed.import.R 
  	- Ingests the feedback data and the list of project rated articles. 
- 
+ - API.get.R
+ 	- Currently a staging place for code which grabs info directly from Wikipedia API
  - feed.plots.R, feed.Animations.R, feed.ggplot.R
  	- For now, most of the big stuff is in here. Plots for summary stats and some other things
  - feed.reg.R 
@@ -33,6 +34,7 @@ This will eventually be automated with a call to sessionInfo()
 - ggplot2 For plotting
 - Animation for saving animations (also requires ImageMagick)
 - MASS for a few regression models and utility functions
+- rjson for reading from Wikipedia API as needed
 
 ### Used for miscellany (or not used inside the script proper)
 
@@ -52,3 +54,8 @@ Some things of note:
 ### feed.ggplot.R
 	
 - Most of these use the full dataset without decimation so they will take a while to render. 
+
+### API.get.R
+
+- This file does not use the version of rjson from CRAN. That should work *ok* but will throw a lot of needless warnings because readLines() doesn't like the formatting of the API responses.
+- It also does not work with RJSONIO (which has functions of the same name) because RJSONIO mangles special characters.
