@@ -8,6 +8,8 @@ options(HTTPUserAgent="Category Enumeration by User:Protonk on en.wp, R 2.14.1")
 library(rjson)
 
 # Needlessly complicated. I'll pare it down over time. 
+# Now redundant to feed.import.R
+
 
 fetchCompleteCat <- function(category, namespace = 0, limit = 500, continue = NULL) {
 	fetchCategoryURL <- function(category, namespace, limit, continue) {
@@ -33,6 +35,7 @@ fetchCompleteCat <- function(category, namespace = 0, limit = 500, continue = NU
 		cat.unform <- append(cat.unform, unlist(cat.list.init$query$categorymembers)[names(unlist(cat.list.init$query$categorymembers)) == "title"])
 		}
 	cat.final <- unname(cat.unform)
-	cat.list.init
+	closeAllConnections()
 	return(cat.final)
 }
+

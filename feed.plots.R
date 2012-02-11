@@ -71,8 +71,8 @@ ratingMap <- function () {
 
 var.plot <- function(max.count = 400, reps = 100) {
   tabcount <- tabulate(feed.df[,"sum_count"])
-  spread.df <- feed.df[, c("sum_ratings", "sum_count", "rating_avg")]
-  spread.df <- spread.df[spread.df[,"sum_count"] <= max.count, -1]
+  spread.df <- feed.df[, c("sum_count", "rating_avg")]
+  spread.df <- spread.df[spread.df[,"sum_count"] <= max.count, ]
   spread.df[, "sum_count"] <- factor(spread.df[, "sum_count"])
   dist.un <- by(spread.df, spread.df[, "sum_count"], function(x) length(unique(x[,2])))
   plot(1:length(dist.un), dist.un , type = "l", ylim = c(0, 400))
@@ -86,7 +86,7 @@ var.plot <- function(max.count = 400, reps = 100) {
 instabilityPlot <- function(max.count = 400) {
 	computePerRating <- function(max.count) {
 	  tabcount <- tabulate(feed.df[feed.df[,"sum_count"] <= max.count, "sum_count"])
-	  spread.df <- feed.df[, c("sum_ratings", "sum_count", "rating_avg", "length", "Assessment")]
+	  spread.df <- feed.df[, c("sum_count", "rating_avg", "length", "Assessment")]
 	  spread.df <- spread.df[spread.df[, "sum_count"] <= max.count, ]
 	  summary.mat <- matrix(0, max.count, 5)
 	  summary.mat[, 3] <- tabcount
