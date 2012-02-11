@@ -7,7 +7,7 @@ simpleSummary <- function() {
   # Eventually this will go into a table. So we just throw a character vector in there for subheadings
   Variable <- character(9)
   Variable[seq(2, 8, 3)] <- c("length",  "sum_count", "rating_avg")
-  fin.mat <- matrix(0,6,9)
+  fin.mat <- matrix(0,7,9)
   rownames(fin.mat) <- levels(feed.df[, "Assessment"])
   colnames(fin.mat) <- rep(c("mean", "median", "sd"), 3)
   # Only seems to make sense for length, count and average rating. 
@@ -17,7 +17,7 @@ simpleSummary <- function() {
     fin.mat[i, seq(3, 9, 3)] <- unname(apply(feed.df[feed.df[, "Assessment"] == i, c("length",  "sum_count", "rating_avg")], 2, sd))
   }
   #this looks ugly as sin (because it is now a character matrix) but it will print fine w/ xtable
-  rbind(Variable, signif(int.mat, 4))
+  rbind(Variable, signif(fin.mat, 4))
 }
 
 ### Some simple regression models 
