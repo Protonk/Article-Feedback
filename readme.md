@@ -25,6 +25,10 @@ All of this stuff is coming from my personal use. I've tried to comment where po
 
 It is also not written in the style of an R package. The code expects you to run each script as needed (after the import script) in order to load the functions and objects into your environment. Then you can plot or model as needed using the supplied functions/objects.
 
+## License
+
+- All code is released under a CC-BY-SA license, as described and linked in license.md
+
 ## Packages
 
 This will eventually be automated with a call to sessionInfo()
