@@ -31,9 +31,17 @@ simple.aux.lm <- lm(resid(length.lm.4) ~ log(sum_count) + Assessment, data = fee
 # Shapiro-Wilk test for rated and unrated articles. Unsurprisingly, average ratings for both are not 
 # normally distributed. 
 
-# Commented out for now, as sw requires < 5000 observations. 
+# Multiple re-sampling for SW statistic. log(log(length)) appears to be normal. Soo...log(length) is log-normal!
+# I think
 
-# sw.ratings <- by(feed.df[feed.df$Assessment != "Unassessed",], feed.df[feed.df$Assessment != "Unassessed", "Assessment"] , function(x) shapiro.test(x[,"rating_avg"]))
+lgn.len <- log(pmax(1, log(feed.df[, "length"])))
+P.out.len <- W.out.len <- numeric(2000)
+for (i in 1:2000){
+  shap.len <- shapiro.test(sample(l.len, 200))
+  P.out.len[i] <- shap.len$p.value
+  W.out.len[i] <- shap.len$statistic
+}
+sum(round(P.out.len > 0.05))/20
 
 # Basic linear (non-robust) regression for explanatory variables of interest
 simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.df)
