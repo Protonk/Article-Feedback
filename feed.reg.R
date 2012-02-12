@@ -34,10 +34,15 @@ simple.aux.lm <- lm(resid(length.lm.4) ~ log(sum_count) + Assessment, data = fee
 # Multiple re-sampling for SW statistic. log(log(length)) appears to be normal. Soo...log(length) is log-normal!
 # I think
 
-lgn.len <- log(pmax(1, log(feed.df[, "length"])))
-shap.len.out <- replicate(2000, unlist(shapiro.test(sample(lgn.len, 100, replace = TRUE))[c(1,2)]))
+# Reject null hypothesis that ratings are normally distributed (even after censoring at > 5)
+# Not a surprise that ratings were non-normal
 
-sum(round(P.out.len > 0.05))/20
+lgn.len <- log(log(feed.df[, "length"]))
+rating.sm <- feed.df[feed.df[, "sum_count"] > 5, "rating_avg"]
+shap.len.out <- replicate(2000, unlist(shapiro.test(sample(lgn.len, 100, replace = TRUE))[c(1,2)]))
+shap.rating.out <- replicate(2000, unlist(shapiro.test(sample(rating.sm, 100, replace = TRUE))[c(1,2)]))
+remove(lgn.len, rating.sm)
+
 
 # Basic linear (non-robust) regression for explanatory variables of interest
 simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.df)
