@@ -35,12 +35,8 @@ simple.aux.lm <- lm(resid(length.lm.4) ~ log(sum_count) + Assessment, data = fee
 # I think
 
 lgn.len <- log(pmax(1, log(feed.df[, "length"])))
-P.out.len <- W.out.len <- numeric(2000)
-for (i in 1:2000){
-  shap.len <- shapiro.test(sample(l.len, 200))
-  P.out.len[i] <- shap.len$p.value
-  W.out.len[i] <- shap.len$statistic
-}
+shap.len.out <- replicate(2000, unlist(shapiro.test(sample(lgn.len, 100, replace = TRUE))[c(1,2)]))
+
 sum(round(P.out.len > 0.05))/20
 
 # Basic linear (non-robust) regression for explanatory variables of interest
