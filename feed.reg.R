@@ -53,10 +53,60 @@ tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= 
 
 ## Proportional odds model for ratings
 
-# 20000 as a rough minimum to see a reasonable number of rated articles, may show more later
 
-assess.init <- polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.df[sample(nrow(feed.df), size = 20000), ])
+# Build for a reasonable binary choice (assessed vs. not)
+# This is a dumb way of doing things but it works.
 
-# Will take a while to run. here for some color more than anything else. 
+# Chose a binomial regression over a prop. odds logit because the proportion is miniscule regardless
+# this will take a while to run
 
-assess.coefs <- replicate(500, coef(polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.df[sample(nrow(feed.df), size = 20000), ])))
+coefBin <- function(replications) {
+  feed.bin <- feed.df
+  assessed <- feed.df[, "Assessment"] %in% levels(feed.df[, "Assessment"])[2:7]
+  assessment.char <- rep("Unassessed", nrow(feed.bin))
+  assessment.char[assessed] <- "Assessed"
+  feed.bin[, "Assessment"] <- factor(assessment.char)
+  # relevel purely to change sign of coefficients. :)
+  feed.bin[, "Assessment"] <- relevel(feed.bin[, "Assessment"], "Unassessed")
+  #create a single glm object so we can look at residuals and what-not
+  assess.bin.glm <- glm(Assessment ~ rating_avg + log(length) + log(sum_count), family = "binomial",data = feed.bin[sample(nrow(feed.bin), size = 50000), ])
+  # not truly a bootstrap but we can get some non-parametric spread on coefficients
+  assess.bin.coef <- replicate(replications, coef(glm(Assessment ~ rating_avg + log(length) + log(sum_count), family = "binomial",data = feed.bin[sample(nrow(feed.bin), size = 30000), ])))
+  return(list(assess.bin.glm, assess.bin.coef))
+}
+
+binomHist <- function(replications = 500) {
+  bin.return.coef <- coefBin(replications)[[2]][-1, ]
+  par(mfrow = c(1,1))
+  hist(bin.return.coef[1, ], breaks = "Scott", col = "blue",
+  main = "Rating Average Marginal Impact on log(odds) of Assessment",
+  xlab = "Coefficient Estimates")
+  par(mfrow = c(2,1))
+  hist(bin.return.coef[2, ], breaks = "Scott", col = "blue",
+  main = "log Article Length Marginal Impact on log(odds) of Assessment",
+  xlab = "Coefficient Estimates")
+  hist(bin.return.coef[3, ], breaks = "Scott", col = "blue",
+  main = "log Rating Count Marginal Impact on log(odds) of Assessment",
+  xlab = "Coefficient Estimates")
+}
+
+# we can handle multiple levels meaningfully when we restrict to rated articles.
+# base factor is a little more arbitrary here. 
+
+coefMatRated <- function(replications) {
+  rated.coef <- replicate(replications, coef(polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.rated[sample(nrow(feed.rated), size = 1000), ])))
+  return(rated.coef)
+}
+
+
+coef.df <- data.frame(cbind(rated.coef[1,], rated.coef[2,], rated.coef[3,]))
+names(coef.df) <- c("Rating", "Length", "Count")
+
+plot(seq(-0.8, 0.8, length.out = 10), seq(0, 3.3, length.out = 10), type = "n", yaxt = "n", 
+     xlab = "Bootstrapped Coefficient Estimates", ylab = "", frame.plot = FALSE,
+     main = "Relationship of Variables and log Odds of Increasing Project Quality Assessment")
+for ( p in 1:3) {
+  points( coef.df[, p], jitter(rep(p, 1000)), pch = 20, col = rgb(red = max(0, 2 - p), green =  3 %% p, blue = 4 %% p, alpha = 0.2))
+  segments(x0 = median(coef.df[, p]), y0 = 0, y1 = p, lty = 2, col = rgb(red = max(0, 2 - p), green =  3 %% p, blue = 4 %% p))
+  text( x = quantile(coef.df[, p], 0.4), y = p + 0.15, labels = paste(names(coef.df[p]), "=", signif(median(coef.df[, p]), 3), sep = " "), pos = 2)
+}
