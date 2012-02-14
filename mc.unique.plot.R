@@ -34,10 +34,9 @@ feed.sim.loop <- function() {
 
 	
 	
-	
-	
-	
-	
+tabcount <- tabulate(feed.df[, "sum_count"])
+tabcount <- cbind(1:length(tabcount), tabcount)
+plot(log(tabcount[,1]), log(pmax(1, tabcount[, 2])), type = "l")
 	
 	
 	
