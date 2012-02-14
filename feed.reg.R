@@ -92,21 +92,23 @@ binomHist <- function(replications = 500) {
 
 # we can handle multiple levels meaningfully when we restrict to rated articles.
 # base factor is a little more arbitrary here. 
-
-coefMatRated <- function(replications) {
-  rated.coef <- replicate(replications, coef(polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.rated[sample(nrow(feed.rated), size = 1000), ])))
-  return(rated.coef)
-}
-
-
-coef.df <- data.frame(cbind(rated.coef[1,], rated.coef[2,], rated.coef[3,]))
-names(coef.df) <- c("Rating", "Length", "Count")
-
-plot(seq(-0.8, 0.8, length.out = 10), seq(0, 3.3, length.out = 10), type = "n", yaxt = "n", 
-     xlab = "Bootstrapped Coefficient Estimates", ylab = "", frame.plot = FALSE,
-     main = "Relationship of Variables and log Odds of Increasing Project Quality Assessment")
-for ( p in 1:3) {
-  points( coef.df[, p], jitter(rep(p, 1000)), pch = 20, col = rgb(red = max(0, 2 - p), green =  3 %% p, blue = 4 %% p, alpha = 0.2))
-  segments(x0 = median(coef.df[, p]), y0 = 0, y1 = p, lty = 2, col = rgb(red = max(0, 2 - p), green =  3 %% p, blue = 4 %% p))
-  text( x = quantile(coef.df[, p], 0.4), y = p + 0.15, labels = paste(names(coef.df[p]), "=", signif(median(coef.df[, p]), 3), sep = " "), pos = 2)
+plotCoefRated <- function(replications = 1000) {
+  coefMatRated <- function(replications) {
+    rated.coef <- replicate(replications, coef(polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.rated[sample(nrow(feed.rated), size = 1000), ])))
+    return(rated.coef)
+  }
+  # Not actually necessary as I'm working with base graphics, but handy
+  coef.df <- data.frame(cbind(rated.coef[1,], rated.coef[2,], rated.coef[3,]))
+  names(coef.df) <- c("Rating", "Length", "Count")
+  # Plots coefficients against ~ -0.5 to 0.5 adds some jitter to allow overplotting to indicate distribution
+  # Colors chosen from color brewer
+  plot(seq(-0.8, 0.8, length.out = 10), seq(0, 3.3, length.out = 10), type = "n", yaxt = "n", 
+       xlab = "Bootstrapped Coefficient Estimates", ylab = "", frame.plot = FALSE,
+       main = "Relationship of Variables and log Odds of Increasing Project Quality Assessment")
+  plotcol <- rbind(c(252, 141, 98), c(141, 160, 203), c(166, 216, 84))
+  for ( p in 1:3) {
+    points( coef.df[, p], jitter(rep(p, 1000)), pch = 20, col = rgb(red = plotcol[p,1], green = plotcol[p,2], blue = plotcol[p,3], alpha = 51, max = 255))
+    segments(x0 = median(coef.df[, p]), y0 = 0, y1 = p, lty = 2, col = rgb(red = plotcol[p,1], green = plotcol[p,2], blue = plotcol[p,3], max = 255))
+    text( x = quantile(coef.df[, p], 0.4), y = p + 0.15, labels = paste(names(coef.df[p]), "=", signif(median(coef.df[, p]), 3), sep = " "), pos = 2)
+  }
 }
