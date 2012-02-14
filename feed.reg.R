@@ -51,11 +51,12 @@ simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = f
 
 tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= TRUE)
 
-## Kitchen Sink Linear Model.
+## Proportional odds model for ratings
 
-# Created for two purposes. First, to step down to automatically selected explanatory variables.
-# Second, to explore for interactions (which is kinda a subset of thing one)
+# 20000 as a rough minimum to see a reasonable number of rated articles, may show more later
 
-giant.lm <- lm(rating_avg ~ log(sum_count) + Assessment + log(length) + log(sum_count):Assessment + log(sum_count):log(length) + Assessment:log(length), data = feed.df)
-# Even w/ assignment, prints some stuff to the console w/o setting trace to FALSE
-stepped.AIC <- stepAIC(giant.lm, trace = FALSE)
+assess.init <- polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.df[sample(nrow(feed.df), size = 20000), ])
+
+# Will take a while to run. here for some color more than anything else. 
+
+assess.coefs <- replicate(500, coef(polr(Assessment ~ rating_avg + log(length) + log(sum_count), data = feed.df[sample(nrow(feed.df), size = 20000), ])))
