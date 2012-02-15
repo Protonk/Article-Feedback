@@ -59,35 +59,34 @@ tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= 
 
 # Chose a binomial regression over a prop. odds logit because the proportion is miniscule regardless
 # this will take a while to run
-
-coefBin <- function(replications) {
-  feed.bin <- feed.df
-  assessed <- feed.df[, "Assessment"] %in% levels(feed.df[, "Assessment"])[2:7]
-  assessment.char <- rep("Unassessed", nrow(feed.bin))
-  assessment.char[assessed] <- "Assessed"
-  feed.bin[, "Assessment"] <- factor(assessment.char)
-  # relevel purely to change sign of coefficients. :)
-  feed.bin[, "Assessment"] <- relevel(feed.bin[, "Assessment"], "Unassessed")
-  #create a single glm object so we can look at residuals and what-not
-  assess.bin.glm <- glm(Assessment ~ rating_avg + log(length) + log(sum_count), family = "binomial",data = feed.bin[sample(nrow(feed.bin), size = 50000), ])
-  # not truly a bootstrap but we can get some non-parametric spread on coefficients
-  assess.bin.coef <- replicate(replications, coef(glm(Assessment ~ rating_avg + log(length) + log(sum_count), family = "binomial",data = feed.bin[sample(nrow(feed.bin), size = 30000), ])))
-  return(list(assess.bin.glm, assess.bin.coef))
-}
-
-binomHist <- function(replications = 500) {
-  bin.return.coef <- coefBin(replications)[[2]][-1, ]
-  par(mfrow = c(1,1))
-  hist(bin.return.coef[1, ], breaks = "Scott", col = "blue",
-  main = "Rating Average Marginal Impact on log(odds) of Assessment",
-  xlab = "Coefficient Estimates")
-  par(mfrow = c(2,1))
-  hist(bin.return.coef[2, ], breaks = "Scott", col = "blue",
-  main = "log Article Length Marginal Impact on log(odds) of Assessment",
-  xlab = "Coefficient Estimates")
-  hist(bin.return.coef[3, ], breaks = "Scott", col = "blue",
-  main = "log Rating Count Marginal Impact on log(odds) of Assessment",
-  xlab = "Coefficient Estimates")
+coefBinPlot <- function(replications = 500) {
+  coefBin <- function(replications) {
+    feed.bin <- feed.df
+    assessed <- feed.df[, "Assessment"] %in% levels(feed.df[, "Assessment"])[2:7]
+    assessment.char <- rep("Unassessed", nrow(feed.bin))
+    assessment.char[assessed] <- "Assessed"
+    feed.bin[, "Assessment"] <- factor(assessment.char)
+    # relevel purely to change sign of coefficients. :)
+    feed.bin[, "Assessment"] <- relevel(feed.bin[, "Assessment"], "Unassessed")
+    # not truly a bootstrap but we can get some non-parametric spread on coefficients
+    assess.bin.coef <- replicate(replications, coef(glm(Assessment ~ rating_avg + log(length) + log(sum_count), family = "binomial",data = feed.bin[sample(nrow(feed.bin), size = 30000), ])))
+    return(assess.bin.coef)
+  }
+  # nearly identical to the plotting function from the Assessed sample
+  bin.coef <- bin.return.coef[-1,]
+  coef.full.df <- data.frame(cbind(bin.coef[1,], bin.coef[2,], bin.coef[3,]))
+  names(coef.full.df) <- c("Rating", "Length", "Count")
+  # Plots coefficients against ~ 0 to 2.0, adds some jitter to allow overplotting to indicate distribution
+  # Colors chosen from color brewer
+  plot(seq(-0.2, 2.1, length.out = 10), seq(0, 3.5, length.out = 10), type = "n", yaxt = "n", 
+       xlab = "Bootstrapped Coefficient Estimates", ylab = "", frame.plot = FALSE,
+       main = "Relationship of Variables and log Odds of Project Quality Assessment")
+  plotcol <- rbind(c(252, 141, 98), c(141, 160, 203), c(166, 216, 84))
+  for ( p in 1:3) {
+    points( coef.full.df[, p], jitter(rep(p, 500)), pch = 20, col = rgb(red = plotcol[p,1], green = plotcol[p,2], blue = plotcol[p,3], alpha = 51, max = 255))
+    segments(x0 = median(coef.full.df[, p]), y0 = 0, y1 = p, lty = 2, col = rgb(red = plotcol[p,1], green = plotcol[p,2], blue = plotcol[p,3], max = 255))
+    text( x = quantile(coef.full.df[, p], 0.4), y = p + 0.15, labels = paste(names(coef.full.df[p]), "=", signif(median(coef.full.df[, p]), 3), sep = " "), pos = 3)
+  }
 }
 
 # we can handle multiple levels meaningfully when we restrict to rated articles.
