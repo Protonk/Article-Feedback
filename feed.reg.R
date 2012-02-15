@@ -1,4 +1,7 @@
+library(boot)
 
+### It will take a while to run simply because the 3 linear models aren't tucked away in
+### functions on demand. Have patience, a < 2.0 GHz C2D should run this inside of 30 seconds.
 
 ## Summary Stats
 
@@ -45,7 +48,21 @@ remove(lgn.len, rating.sm)
 
 
 # Basic linear (non-robust) regression for explanatory variables of interest
+
 simple.lm <- lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = feed.df)
+
+# Check the linear regression against non-parametric boostrap. 200 resamples is
+# not generally enough for a production grade result but it does let us know the basics 
+# of the lm aren't too ifluenced by h-sked.
+bootSimpleLm <- function(R = 200) {
+  # provides a function to iteratively refit model
+  refitSimple <- function(data, i) {
+    coef(lm(rating_avg ~ log(length) + log(sum_count) + Assessment, data = data[i, ]))
+  }
+  # so the results can be reproduced if needed.
+  set.seed(123)
+  boot(feed.df, refitSimple, R = R)
+}
 
 # Tukey HSD for comparison of Assessment group means. 
 
@@ -55,9 +72,9 @@ tukey.Assess <- TukeyHSD(aov(rating_avg ~ Assessment, data = feed.df), ordered= 
 
 
 # Build for a reasonable binary choice (assessed vs. not)
-# This is a dumb way of doing things but it works.
 
 # Chose a binomial regression over a prop. odds logit because the proportion is miniscule regardless
+# So all assessment factors are rolled into "Assessed"
 # this will take a while to run
 coefBinPlot <- function(replications = 500) {
   coefBin <- function(replications) {
