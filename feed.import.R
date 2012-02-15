@@ -19,10 +19,6 @@ buildFeedDf <- function(remote = FALSE) {
   else read.csv("~/R/Dropbox/afdump.csv", as.is= TRUE)
 }
 
-# Mediawiki requires an informative user agent. Yours should be different
-
-options(HTTPUserAgent="Category Enumeration by User:Protonk on en.wp, R 2.14.1")
-
 # This is NOT rjson 0.2.6. I have changed it so the internal call to readLines doesn't toss warngings
 # Also RJSONIO will mangle special characters like —, don't use it
 
@@ -31,6 +27,8 @@ library(rjson)
 # Enumerate categories from the Mediawiki API
 
 fetchCompleteCat <- function(category, namespace = 0) {
+  # Mediawiki requires an informative user agent. Yours should be different
+  options(HTTPUserAgent="Category Enumeration by User:Protonk on en.wp, R 2.14.1")
   fetchCategoryURL <- function(category, namespace, continue = NULL) {
     url.start <-paste(
       "http://en.wikipedia.org/w/api.php?", 
