@@ -118,3 +118,24 @@ instabilityPlot <- function(max.count = 400) {
 	text(30, 0.45, labels = prop.lab, pos = 4, cex = 2)
 	par(mfrow = c(1,1))
 }
+
+# Add plot for correlation between numeric variables in the dataset. 
+# plot isn't strictly accurate as both number of ratings and article length are in log form
+
+spearmanPlot <- function() {
+  spearman.feed <- list()
+  spearman.feed[["ratinglen"]] <- mapply(function(n) cor.test(feed.df[feed.df[, "sum_count"] >= n, "rating_avg"], log(feed.df[feed.df[, "sum_count"] >= n, "length"]), method = "spearman", exact = FALSE)[["estimate"]], seq(0, 150, 5))
+  spearman.feed[["ratingcnt"]] <- mapply(function(n) cor.test(feed.df[feed.df[, "sum_count"] >= n, "rating_avg"], log(feed.df[feed.df[, "sum_count"] >= n, "sum_count"]), method = "spearman", exact = FALSE)[["estimate"]], seq(0, 150, 5))
+  spearman.feed[["lencnt"]] <- mapply(function(n) cor.test(log(feed.df[feed.df[, "sum_count"] >= n, "length"]), log(feed.df[feed.df[, "sum_count"] >= n, "sum_count"]), method = "spearman", exact = FALSE)[["estimate"]], seq(0, 150, 5))
+  
+  plot(seq(0, 150, 5), spearman.feed[["ratinglen"]], type = "b", col = "blue",
+       pch = 20, ylim = c(0, 0.4), ylab = "Pairwise Correlation", xlab = "Minimum Number of Ratings per Article",
+       main = "Spearman's" ~ rho ~ "Computed for Progressively Censored Samples")
+  lines(seq(0, 150, 5), spearman.feed[["lencnt"]], type = "b", pch = 15, col = "green")
+  lines(seq(0, 150, 5), spearman.feed[["ratingcnt"]], type = "b", pch = 17)
+  text(25, 0.39, labels = "Average Rating <=> Article Length", cex = 0.9, pos = 4)
+  text(25, 0.23, labels = "Number of Ratings <=> Article Length", cex = 0.9, pos = 4)
+  text(25, 0.11, labels = "Average Rating <=> Number of Ratings", cex = 0.9, pos = 4)
+  points(rep(25, 3), c(0.39, 0.23, 0.11), pch = c(20, 15, 17), col = c("blue", "green", "black"))
+}
+

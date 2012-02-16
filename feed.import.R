@@ -187,8 +187,9 @@ feed.df <- feed.df[, c("title", "length", "sum_count", "rating_avg", "Assessment
 
 rownames(feed.df) <- 1:nrow(feed.df)
 
-# Just GA/FA/former GA/Former FA/Failed GA noms
+# Just GA/FA/former GA/Former FA/Failed GA noms/Featured Lists
 # Be mindful, this is a miniscule fraction of overall sample
+# No attempt is made to isolate those which held this status during the sample period. 
 
 feed.rated <- feed.df[feed.df[, "Assessment"] != "Unassessed", ]
 feed.rated[, "Assessment"] <- factor(feed.rated[, "Assessment"])
