@@ -30,7 +30,9 @@ It is also not written in the style of an R package. The code expects you to run
 
 ## Packages
 
-This will eventually be automated with a call to sessionInfo()
+sessionInfo() for importing data
+
+    R version 2.14.1 (2011-12-22)    Platform: x86_64-apple-darwin9.8.0/x86_64 (64-bit)    locale:    [1] C/en_US.UTF-8/C/C/C/C    attached base packages:    [1] stats     graphics  grDevices utils datasets  methods   base         other attached packages:    [1] rjson_0.2.6    loaded via a namespace (and not attached):    [1] tools_2.14.1
 
 ### Required
 
