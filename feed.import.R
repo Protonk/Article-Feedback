@@ -167,7 +167,7 @@ feed.df <- feed.df[-unclean.rows(), ]
 precorMatrix <- function() {
   pre.cor.mat <- matrix(0, nrow(feed.df), 5)
   colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")
-  pre.cor.mat <- as.matrix(feed.small[, c("total_wellsourced", "total_neutral", "total_complete", "total_readable", "sum_ratings")] / feed.small[, c("count_wellsourced", "count_neutral", "count_complete", "count_readable", "sum_count")])
+  pre.cor.mat <- as.matrix(feed.df[, c("total_wellsourced", "total_neutral", "total_complete", "total_readable", "sum_ratings")] / feed.df[, c("count_wellsourced", "count_neutral", "count_complete", "count_readable", "sum_count")])
   return(pre.cor.mat[complete.cases(pre.cor.mat),])
 }
 
@@ -178,9 +178,16 @@ feed.small[, c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")] <-
 feed.small <- feed.small[complete.cases(feed.small), c("Well Sourced", "Neutral", "Complete", "Readable", "Overall", "sum_count")]
 
 # Load Individual rating categories into a numerical matrix (along w/ col's 6 & 7 for length/sum_count
-# Done in the import script so I can drop the individual categories from the dataframe
 
 ratings.corr <- cor(precorMatrix())
+
+# move computation to import script. This duplicates efforts in precoMatrix a bit.
+
+plotcormat <- matrix(0, 37, 4)
+colnames(plotcormat) <- c("Well Sourced", "Neutral", "Complete", "Readable")
+for (i in c("Well Sourced", "Neutral", "Complete", "Readable")) {
+  plotcormat[,i] <- mapply(function(x) cor(feed.small[feed.small[, "sum_count"] %in% x, c(i, "Overall")])[1,2], seq(4,40,1))
+}
 
 # Removes individual ratings and sum_ratings from the dataframe. Cleans up calls to summary() and doesn't remove 
 # any information I really need for plotting or analysis.
@@ -205,5 +212,5 @@ rownames(feed.rated) <- 1:nrow(feed.rated)
 
 # precorMatrix is removed because the rows it depends upon are removed
 
-remove(unclean.rows, buildFeedDf, applyFactors, precorMatrix, fetchCompleteCat)
+remove(unclean.rows, buildFeedDf, applyFactors, precorMatrix, fetchCompleteCat, remove feed.small, i)
 closeAllConnections()

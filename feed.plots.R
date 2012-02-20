@@ -144,11 +144,6 @@ spearmanPlot <- function() {
 # also prints the Mann-Whitney test to the console
 
 plotLowRateCor <- function() {
-  plotcormat <- matrix(0, 37, 4)
-  colnames(plotcormat) <- c("Well Sourced", "Neutral", "Complete", "Readable")
-  for (i in c("Well Sourced", "Neutral", "Complete", "Readable")) {
-    plotcormat[,i] <- mapply(function(x) cor(feed.small[feed.small[, "sum_count"] %in% x, c(i, "Overall")])[1,2], seq(4,40,1))
-  }
   plot(1:40, seq(0.7, 0.95, length.out = 40), type = "n", frame.plot = FALSE,
        ylab = "Pairwise Correlation", xlab = "Exact Number of Ratings per Article",
        main = "Correlation with Overall Rating Average varies with Number of Ratings ")
