@@ -15,31 +15,35 @@ array.test <- function(max.count = 400, reps = 100) {
 	}
   
 
-feed.sim.mapply <- function(max.count = 400, reps = 100) {
-	sim.uniq.out <- matrix(c(1:max.count, rep(0,max.count)), max.count, 2)
-	vector.uniq <-	Vectorize(function(vec.max.count, vec.reps) length(unique(replicate(vec.reps, mean(round(runif(vec.max.count, 1, 5)))))))
-	sim.uniq.out[,2] <- vector.uniq(1:max.count, reps)
-	return(sim.uniq.out)
-	}
+var.plot <- function(max.count = 400, reps = 100) {
+  tabcount <- tabulate(feed.df[,"sum_count"])
+  spread.df <- feed.df[feed.df[,"sum_count"] <= max.count, ]
+  dist.un <- mapply(function(x) length(unique(spread.df[spread.df[,"sum_count"] == x,"rating_avg"])), 1:400)
+  plot(1:length(dist.un), dist.un , type = "l", ylim = c(0, 400))
+  lines(1:max.count, tabcount[1:max.count], col = "blue")
+  abline(a = 0, b =5, col = "green", lty = 2)
+}
 
-#loop is just as fast as mapply, of course. 
 
-feed.sim.loop <- function() {
-	sim.uniq.out <- matrix(c(1:10, rep(0,10)), 10, 2)
-	for (i in i:10) {
-		sim.uniq.out[i,2] <- length(unique(replicate(50, mean(round(runif(i, 1, 5))))))
-		}
-	return(sim.uniq.out)
-	}
+nuniques <- function(inp) {
+  length(unique(inp))
+}                                
+df.prob <- mean(feed.df[, "rating_avg"])/5
 
-	
-	
-tabcount <- tabulate(feed.df[, "sum_count"])
-tabcount <- cbind(1:length(tabcount), tabcount)
-plot(log(tabcount[,1]), log(pmax(1, tabcount[, 2])), type = "l")
-	
-	
-	
-	
+bn.prob <- mean(feed.df[, "rating_avg"])/4
+binomavg <- function(counts, rate) {
+  replicate(counts, mean(rbinom(rate,4,df.prob) + 1))
+}
+binom.uni <- unlist(lapply(mapply(binomavg, counts = tabcount[1:400], rate = 1:400), nuniques))
 
+unifavg <- function(counts, rate) {
+  replicate(counts, mean(round(runif(rate, min = 1, max = 5))))
+}
+unif.uni <- unlist(lapply(mapply(unifavg, counts = tabcount[1:400], rate = 1:400), nuniques))
+head(unif.uni, 20)
+
+unif.list <- mapply(unifavg, counts = tabcount[20:40], rate = 20:40)
+
+stmean <- mean(feed.df[, "rating_avg"])
+stsd <- sd(feed.df[, "rating_avg"])
 
