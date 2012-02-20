@@ -167,11 +167,15 @@ feed.df <- feed.df[-unclean.rows(), ]
 precorMatrix <- function() {
   pre.cor.mat <- matrix(0, nrow(feed.df), 5)
   colnames(pre.cor.mat) <- c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")
-  for (i in c(3,5,7,9,11)) {
-    pre.cor.mat[,(i - 1)/2] <- (feed.df[, i] / feed.df[, i + 1])
-  }
+  pre.cor.mat <- as.matrix(feed.small[, c("total_wellsourced", "total_neutral", "total_complete", "total_readable", "sum_ratings")] / feed.small[, c("count_wellsourced", "count_neutral", "count_complete", "count_readable", "sum_count")])
   return(pre.cor.mat[complete.cases(pre.cor.mat),])
 }
+
+# generate low count ratings with only rating numbers to show different correlations at multiples of 4
+
+feed.small <- feed.df[feed.df[, "sum_count"] > 1 & feed.df[, "sum_count"] <= 40, ]
+feed.small[, c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")] <- feed.small[, c("total_wellsourced", "total_neutral", "total_complete", "total_readable", "sum_ratings")] / feed.small[, c("count_wellsourced", "count_neutral", "count_complete", "count_readable", "sum_count")]
+feed.small <- feed.small[complete.cases(feed.small), c("Well Sourced", "Neutral", "Complete", "Readable", "Overall")]
 
 # Load Individual rating categories into a numerical matrix (along w/ col's 6 & 7 for length/sum_count
 # Done in the import script so I can drop the individual categories from the dataframe
