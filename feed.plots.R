@@ -139,3 +139,24 @@ spearmanPlot <- function() {
   points(rep(25, 3), c(0.39, 0.23, 0.11), pch = c(20, 15, 17), col = c("blue", "green", "black"))
 }
 
+# Show a plot for correlation between individual category rating and overall
+# for rating multiples of 4 (where it is likely one person rated all 4 cats)
+# also prints the Mann-Whitney test to the console
+
+plotLowRateCor <- function() {
+  plotcormat <- matrix(0, 37, 4)
+  colnames(plotcormat) <- c("Well Sourced", "Neutral", "Complete", "Readable")
+  for (i in c("Well Sourced", "Neutral", "Complete", "Readable")) {
+    plotcormat[,i] <- mapply(function(x) cor(feed.small[feed.small[, "sum_count"] %in% x, c(i, "Overall")])[1,2], seq(4,40,1))
+  }
+  plot(1:40, seq(0.7, 0.95, length.out = 40), type = "n", frame.plot = FALSE,
+       ylab = "Pairwise Correlation", xlab = "Exact Number of Ratings per Article",
+       main = "Correlation with Overall Rating Average varies with Number of Ratings ")
+  corcols <- c("blue", "green", "orange", "pink")
+  for (i in 1:4) lines(4:40, plotcormat[,i], col = corcols[i])
+  legend(30, 0.8, legend = c("Well Sourced", "Neutral", "Complete", "Readable"), fill = corcols, bty = "n", cex = 0.8)
+  return(wilcox.test(plotcormat[seq(1, 37, 4),], plotcormat[-seq(1, 37, 4),], alternative = "greater"))
+}
+
+
+
