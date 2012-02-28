@@ -16,7 +16,7 @@ buildFeedDf <- function(remote = FALSE) {
     return(aap.file)
   }
   if (remote) grabWikiFeed()
-  else read.csv("/Users/protonk/R/Dropbox/Article Feedback/Articles/afdump.csv", as.is= TRUE)
+  else read.csv("/Users/protonk/R/Dropbox/Article-Feedback/Articles/afdump.csv", as.is= TRUE)
 }
 
 # This is NOT rjson 0.2.6. I have changed it so the internal call to readLines doesn't toss warngings
@@ -61,12 +61,12 @@ fetchCompleteCat <- function(category, namespace = 0) {
 # factors in the feedback dataframe. Local or remote. 
 
 applyFactors <- function(remote = FALSE) {
-  local.articles <- c("/Users/protonk/r/Dropbox/Article Feedback/Articles/formerGA.txt", 
-                      "/Users/protonk/r/Dropbox/Article Feedback/Articles/formerFA.txt",
-                      "/Users/protonk/r/Dropbox/Article Feedback/Articles/fmrGAnom.txt", 
-                      "/Users/protonk/r/Dropbox/Article Feedback/Articles/GA.txt",
-                      "/Users/protonk/r/Dropbox/Article Feedback/Articles/FL.txt", 
-                      "/Users/protonk/r/Dropbox/Article Feedback/Articles/FA.txt")
+  local.articles <- c("/Users/protonk/r/Dropbox/Article-Feedback/Articles/formerGA.txt", 
+                      "/Users/protonk/r/Dropbox/Article-Feedback/Articles/formerFA.txt",
+                      "/Users/protonk/r/Dropbox/Article-Feedback/Articles/fmrGAnom.txt", 
+                      "/Users/protonk/r/Dropbox/Article-Feedback/Articles/GA.txt",
+                      "/Users/protonk/r/Dropbox/Article-Feedback/Articles/FL.txt", 
+                      "/Users/protonk/r/Dropbox/Article-Feedback/Articles/FA.txt")
   remote.articles <- c("Category:Delisted_good_articles",
                        "Category:Wikipedia_former_featured_articles",
                        "Category:Former_good_article_nominees",
