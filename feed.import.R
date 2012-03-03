@@ -2,9 +2,6 @@
 #            source('/PATH_TO_FILE/feed.import.R')
 # Adding the exact file path, of course. 
 
-
-
-
 importFeedDb <- function(ingest) {
 	project.dir <- getwd()
 	buildFeedDf <- function(ingest) {
@@ -15,13 +12,13 @@ importFeedDb <- function(ingest) {
 			aap.file <- read.csv(gzfile(temp), colClasses = aap.classes, nrows = 799641)
 			unlink(temp)
 			if (create.dir) {
-				dir.create(paste(project.dir, "Articles", sep= "/"))
-				write.csv(aap.file, paste(project.dir, "Articles",  "afdump.csv", sep = "/"));
+				dir.create(file.path(project.dir, "Articles"))
+				write.csv(aap.file, file.path(project.dir, "Articles",  "afdump.csv"));
 			}
 			return(aap.file)
 		}
 		switch(ingest,
-			local = read.csv(paste(project.dir, "Articles", "afdump.csv", sep = "/"), colClasses = aap.classes, nrows = 799641),
+			local = read.csv(file.path(project.dir, "Articles",  "afdump.csv"), colClasses = aap.classes, nrows = 799641),
 			remote = grabRemote(),
 			initial = grabRemote(create.dir = TRUE)
 			)
@@ -73,7 +70,7 @@ importFeedDb <- function(ingest) {
 						   "FL.txt",
 						   "FA.txt")
 						   
-		local.articles <- paste(project.dir, "Articles", charvec.names, sep = "/")
+		local.articles <- file.path(project.dir, "Articles", charvec.names)
 		
 		remote.articles <- c("Category:Delisted_good_articles",
 							 "Category:Wikipedia_former_featured_articles",
@@ -103,7 +100,7 @@ importFeedDb <- function(ingest) {
 			#Some have the category transcluded on an archive page
 			#The rest need "Talk:" stripped out 
 			list.out <- lapply(list.out, gsub, pattern = "(Talk:)|(/Archive)(.*)", replacement = "")
-			if (create.dir) sapply(names(list.out), function (x) write(paste(project.dir, "Articles", list.out[[x]], sep = "/"), file= x ))
+			if (create.dir) sapply(names(list.out), function (x) write(file.path(project.dir, "Articles", list.out[[x]]), file= x ))
 			list2env(list.out, envir = parent.frame())
 		}
 		
