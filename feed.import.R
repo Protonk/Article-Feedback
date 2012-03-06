@@ -30,38 +30,42 @@ importFeedDb <- function(ingest) {
 	
 	applyFactors <- function(ingest) {
 		# Enumerate categories from the Mediawiki API
-		
-		fetchCompleteCat <- function(category, namespace = 0) {
-			# This is NOT rjson 0.2.6. I have changed it so the internal call to readLines doesn't toss warngings
-			# Also RJSONIO will mangle special characters like —, don't use it
-			library(rjson)
-			# Mediawiki requires an informative user agent. Yours should be different
-			options(HTTPUserAgent="Category Enumeration by User:Protonk on en.wp, R 2.14.1")
-			fetchCategoryURL <- function(category, namespace, continue = NULL) {
-				url.start <-paste("http://en.wikipedia.org/w/api.php?", 
-								  "action=query",
-								  "list=categorymembers",
-								  paste("cmtitle", "=", category, sep = ""),
-								  paste("cmnamespace", "=", namespace, sep = ""),
-								  "cmlimit=500",
-								  "cmtype=page",
-								  "cmprop=title",
-								  "format=json",
-								  sep = "&")
-				if (is.null(continue)) url.gen <- url.start
-				else url.gen <- paste(url.start, paste("cmcontinue", "=", continue, sep = ""), sep = "&")
-				url.gen
-			}
-			cat.list.init <- fromJSON(file = fetchCategoryURL(category, namespace))
-			cat.unform <- unlist(cat.list.init$query$categorymembers)[names(unlist(cat.list.init$query$categorymembers)) == "title"]
-			while (!is.null(cat.list.init$`query-continue`)) {
-				cat.list.init <- fromJSON(file = fetchCategoryURL(category, namespace, continue = unlist(cat.list.init$`query-continue`)[[1]]))
-				cat.unform <- append(cat.unform, unlist(cat.list.init$query$categorymembers)[names(unlist(cat.list.init$query$categorymembers)) == "title"])
-			}
-			cat.final <- unname(cat.unform)
-			closeAllConnections()
-			return(cat.final)
-		}
+	  fetchCompleteCat <- function(category, namespace = 0) {
+	    # Mediawiki requires an informative user agent. Yours should be different
+	    options(HTTPUserAgent="Category Enumeration by User:Protonk on en.wp, R 2.14.1")
+	    library(XML)
+	    # Wrapper for XML package, see http://stackoverflow.com/questions/7269006/r-xml-package-how-to-set-the-user-agent
+	    wikixmlParse <- function(url, ...) {
+	      temp <- tempfile()
+	      download.file(url, temp, quiet = TRUE)
+	      xml.out <- xmlParse(temp, ...)
+	      unlink(temp)
+	      return(xml.out)
+	    }
+	    # combine category URL creating and listing because we don't need to store
+	    # the URL anywhere
+	    fetchpartCat <- function(category, namespace, continue = NULL) {
+	      url.gen <-paste("http://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmlimit=500&cmtype=page&cmprop=title&format=xml",
+	                      paste("cmtitle", "=", category, sep = ""),
+	                      paste("cmnamespace", "=", namespace, sep = ""),
+	                      sep = "&")
+	      if (is.null(continue)) return(wikixmlParse(url.gen))
+	      url.gen <- paste(url.gen, paste("cmcontinue", "=", continue, sep = ""), sep = "&")
+	      return(wikixmlParse(url.gen))
+	    }
+	    cont <- NULL
+	    init.xml <- fetchpartCat(category, namespace)
+	    cat.char <- unlist(xpathApply(init.xml, "//cm", xmlGetAttr, "title"))
+	    # 500 items is the API limit, so we need to keep traversing segments of 
+	    # the category until there is no more continue parameter
+	    while (length(getNodeSet(fetchpartCat(category, namespace, continue = cont), "//categorymembers")) > 1) {
+	      cont <- xmlGetAttr(getNodeSet(fetchpartCat(category, namespace, continue = cont), "//categorymembers")[[2]], "cmcontinue")
+	      cat.char <- append(cat.char, unlist(xpathApply(fetchpartCat(category, namespace, continue = cont), "//cm", xmlGetAttr, "title")))
+	    }
+	    cat.final <- unname(cat.char)
+	    closeAllConnections()
+	    return(cat.final)
+	  }
 	
 		charvec.names <- c("formerGA.txt",
 						   "formerFA.txt",
