@@ -15,7 +15,7 @@ aveByRating <- function(data = indrat) {
   # Building tables to feed to ggplot2 requires a slight trick
   # See http://stackoverflow.com/a/3153333/1188479
   count.table.four <- table(data[data[, "Rated All"] == TRUE, "Mean"])
-  count.table.else <- table(data[, "Mean"])
+  count.table.else <- table(data[data[, "Rated All"] == FALSE, "Mean"])
   four.df <- data.frame(Categories = "4",
                         Rating = names(count.table.four),
                         Count = as.numeric(count.table.four)
@@ -25,14 +25,15 @@ aveByRating <- function(data = indrat) {
                         Count = as.numeric(count.table.else)
                         )
   full.df <- rbind(four.df, else.df)
-  full.df[, "Rating"] <- factor(x = testme[, "Rating"], levels = sort(unique(as.numeric(testme[, "Rating"]))))
+  full.df[, "Rating"] <- factor(x = full.df[, "Rating"],
+                                levels = sort(names(c(count.table.else, count.table.four))))
   full.df[, "Categories"] <- as.factor(full.df[, "Categories"])
   # Color coding for integers
   full.df[, "Integer"] <- as.factor(ifelse(full.df[, "Rating"] %in% 1:5, "Yes", "No"))
   full.df
 }
-testme <- aveByRating(data = indrat)
 
+ggplot(data =  aveByRating(data = indrat), aes(x = Rating, y = Count, fill = Integer)) + geom_bar(position="dodge", stat="identity") + facet_wrap(~ Categories)
 
 # Plot frequency of averages
 qplot(count.out, fill = integers, geom = "bar", data = aveByRating(data = indrat, all = FALSE)) + 
