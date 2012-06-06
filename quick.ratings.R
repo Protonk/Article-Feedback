@@ -11,24 +11,37 @@ topfinal <- merge(toplist, toptitles, by = "Page_ID")
 topfinal <- topfinal[order(topfinal[, "Rank"]), ]
 
 
-aveByRating <- function(data = indrat, all = TRUE) {
-  # We are only interested in rows where the user rated all 4 categories
-  rating.avgs <- data[data[, "Rated All"] == all, "Mean"] 
-  count.table <- table(rating.avgs)
-  # Builds factors of the rating avgs (ordered by count)
-  # and another factor for just the integers (this is a ggplot2 thing)
-  count.out <- factor(rating.avgs, levels = names(count.table), ordered = TRUE)
-  integers <- factor(count.out, levels = as.character(1:5))
-  # placed into a data frame for easier plotting
-  data.frame(count.out, integers)
+aveByRating <- function(data = indrat) {
+  # Building tables to feed to ggplot2 requires a slight trick
+  # See http://stackoverflow.com/a/3153333/1188479
+  count.table.four <- table(data[data[, "Rated All"] == TRUE, "Mean"])
+  count.table.else <- table(data[, "Mean"])
+  four.df <- data.frame(Categories = "4",
+                        Rating = names(count.table.four),
+                        Count = as.numeric(count.table.four)
+                        )
+  else.df <- data.frame(Categories = "< 4",
+                        Rating = names(count.table.else),
+                        Count = as.numeric(count.table.else)
+                        )
+  full.df <- rbind(four.df, else.df)
+  full.df[, "Rating"] <- factor(x = testme[, "Rating"], levels = sort(unique(as.numeric(testme[, "Rating"]))))
+  full.df[, "Categories"] <- as.factor(full.df[, "Categories"])
+  # Color coding for integers
+  full.df[, "Integer"] <- as.factor(ifelse(full.df[, "Rating"] %in% 1:5, "Yes", "No"))
+  full.df
 }
-fourcat.table <- aveByRating(data = indrat, all = TRUE)
+testme <- aveByRating(data = indrat)
+
+
 # Plot frequency of averages
-qplot(count.out, fill = integers, geom = "bar", data = fourcat.table) + 
+qplot(count.out, fill = integers, geom = "bar", data = aveByRating(data = indrat, all = FALSE)) + 
   opts(legend.position = "none", title = expression("Averages of ratings where users rated all four categories")) + 
   scale_y_continuous(name = "") +  scale_x_discrete(name = "")
 
 
 
+barplot(scale(table(indrat[, "Mean"]), center = FALSE)[, 1])
 
-
+# for ggplot2
+# http://stackoverflow.com/questions/3153025/grouped-bar-chart-with-ggplot2-and-already-tabulated-data
