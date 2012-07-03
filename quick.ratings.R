@@ -26,7 +26,7 @@ aveByRating <- function(data = indrat) {
                         )
   full.df <- rbind(four.df, else.df)
   full.df[, "Rating"] <- factor(x = full.df[, "Rating"],
-                                levels = sort(names(c(count.table.else, count.table.four))))
+                                levels = sort(unique(c(names(count.table.else), names(count.table.four)))))
   full.df[, "Categories"] <- as.factor(full.df[, "Categories"])
   # Color coding for integers
   full.df[, "Integer"] <- as.factor(ifelse(full.df[, "Rating"] %in% 1:5, "Yes", "No"))
