@@ -16,11 +16,11 @@ aveByRating <- function(data = indrat) {
   # See http://stackoverflow.com/a/3153333/1188479
   count.table.four <- table(data[data[, "Rated All"] == TRUE, "Mean"])
   count.table.else <- table(data[data[, "Rated All"] == FALSE, "Mean"])
-  four.df <- data.frame(Categories = "4",
+  four.df <- data.frame(Categories = "All Four Rated",
                         Rating = names(count.table.four),
                         Count = as.numeric(count.table.four)
                         )
-  else.df <- data.frame(Categories = "< 4",
+  else.df <- data.frame(Categories = "Fewer Than Four Rated",
                         Rating = names(count.table.else),
                         Count = as.numeric(count.table.else)
                         )
@@ -33,16 +33,17 @@ aveByRating <- function(data = indrat) {
   full.df
 }
 
-ggplot(data =  aveByRating(data = indrat), aes(x = Rating, y = Count, fill = Integer)) + geom_bar(position="dodge", stat="identity") + facet_wrap(~ Categories)
+# Faceted
+ggplot(data =  aveByRating(data = indrat), aes(x = Rating, y = Count, fill = Integer)) +
+  geom_bar(position="dodge", stat="identity") + scale_x_discrete(breaks = 1:5, labels = as.character(1:5)) +
+  facet_wrap(~ Categories) + guides(fill=FALSE) + xlab("Average Rating For Individual Rating Event") +
+  scale_y_continuous(labels = c("0", "10,000", "20,000", "30,000", "40,000")) + ylab("Occurrences")
+# combined
+ggplot(data =  aveByRating(data = indrat), aes(x = Rating, y = Count, fill = Integer)) +
+  geom_bar(position="dodge", stat="identity") + scale_x_discrete(breaks = 1:5, labels = as.character(1:5)) + 
+  guides(fill=FALSE) + xlab("Average Rating For Individual Rating Event") +
+  scale_y_continuous(labels = c("0", "10,000", "20,000", "30,000", "40,000")) + ylab("Occurrences")
 
-# Plot frequency of averages
-qplot(count.out, fill = integers, geom = "bar", data = aveByRating(data = indrat, all = FALSE)) + 
-  opts(legend.position = "none", title = expression("Averages of ratings where users rated all four categories")) + 
-  scale_y_continuous(name = "") +  scale_x_discrete(name = "")
-
-
-
-barplot(scale(table(indrat[, "Mean"]), center = FALSE)[, 1])
 
 # for ggplot2
 # http://stackoverflow.com/questions/3153025/grouped-bar-chart-with-ggplot2-and-already-tabulated-data
