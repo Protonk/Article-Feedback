@@ -35,6 +35,23 @@ density.length.plot <- function() {
     opts(title = expression("Distribution of log Article Length for Project Quality Assessed Articles"))
 }
 
+# Binning for simpler graphs
+
+prebin <- as.character(feed.df[, "Assessment"])
+basic.bin <- factor(gsub("Former\\s+|\\s+Nominee", "", prebin), levels = c("Unassessed", "Good Article", "Featured List", "Featured Article"), ordered = TRUE)
+
+assess.bin <- prebin
+assess.bin[assess.bin != "Unassessed"] <- "Assessed"
+assess.bin <- factor(assess.bin)
+
+feed.df[, "Simplified Assessment"] <- basic.bin
+feed.df[, "Binary Assessment"] <- assess.bin
+
+ggplot(data = feed.df, aes(log(length))) + geom_density(aes(fill = `Simplified Assessment`), alpha = 0.4) + 
+  scale_y_continuous(name = "Estimated Density") + scale_x_continuous(name = "log Article Length")  +
+  opts(axis.title.y = theme_text(face="bold", size=15, angle=90)) +
+  opts(axis.title.x = theme_text(face="bold", size=15))
+
 
 # Boxplot for different project quality assessments. Using a trimmed sample
 # in order to make the "Unassessed" IQR reasonable
@@ -43,6 +60,9 @@ rate.box.plot <- function() {
   ggplot(data = feed.df, aes(Assessment, rating_avg)) + geom_boxplot(aes(fill = Assessment)) + scale_y_continuous(name = "Average of Feedback Categories") +
   opts(axis.title.x = theme_blank(), axis.text.x = theme_blank(), title = expression("Box Plot Comparing Feedback Rating by Project Quality Assessment"))
 }
+
+ggplot(data = feed.df, aes(Assessment, rating_avg)) + geom_boxplot(aes(fill = Assessment)) + scale_y_continuous(name = "Average of Feedback Within Categories") +
+  opts(axis.text.x = theme_blank()) + xlab('') + opts(axis.title.y = theme_text(face="bold", size=13, angle=90))
 
 # Takes a while to plot.
 # Scatterplot, colored by project quality assessment.
@@ -55,6 +75,16 @@ length.scatter <- function() {
   geom_point(data = dummy.df, aes(log(length), rating_avg, colour = Assessment), alpha = 1.0, size = I(3), position= position_jitter(h = 1), na.rm=TRUE) +
   scale_y_continuous(name = "Approximate Feedback Average") + scale_x_continuous(name = "log Article Length") + opts(title = expression("Article Ratings by Length and Project Quality Measure"), axis.text.y = theme_blank()) 
 }
+
+
+ggplot() + geom_point(data = feed.df, aes(log(length), rating_avg, colour = `Simplified Assessment`), alpha = I(0.9), size = I(1), position= position_jitter(h = 1)) +
+  scale_y_continuous(name = "Approximate Feedback Average", breaks = NULL) + 
+  scale_x_continuous(name = "log Article Length") + 
+  opts(axis.text.y = theme_blank())
+
+
+
+
 
 # Uncolored scatterplot w/ a (robust) linear regression line drawn through
 # Eventually I'd like to add a few more
