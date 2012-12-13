@@ -183,6 +183,9 @@ precorMatrix <- function() {
   return(pre.cor.mat[complete.cases(pre.cor.mat),])
 }
 
+ratings.mat <- feed.df[, c("total_wellsourced", "total_neutral", "total_complete", "total_readable", "sum_ratings")]/feed.df[, c("count_wellsourced", "count_neutral", "count_complete", "count_readable", "sum_count")]
+
+
 # generate low count ratings with only rating numbers to show different correlations at multiples of 4
 
 feed.small <- feed.df[feed.df[, "sum_count"] %in% 2:40, ]
@@ -224,5 +227,5 @@ rownames(feed.rated) <- 1:nrow(feed.rated)
 
 # precorMatrix is removed because the rows it depends upon are removed
 
-remove(unclean.rows, precorMatrix, feed.small, i, importFeedDb)
+remove(unclean.rows, precorMatrix, i, importFeedDb)
 closeAllConnections()
